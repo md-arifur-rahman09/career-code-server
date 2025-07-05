@@ -11,13 +11,14 @@ const port = process.env.PORT || 5000;
 
 // middleware
 app.use(cors({
-    origin: ['http://localhost:5173',
+    origin: [
+        'http://localhost:5173',
         'https://career-code-client-14ed8.web.app',
         'https://career-code-client-14ed8.firebaseapp.com'
-
     ],
     credentials: true
 }));
+
 
 app.use(express.json());
 app.use(cookieParser());
@@ -64,7 +65,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
 
         // DB collection
         const jobsCollection = client.db("careerCode").collection("jobs");
@@ -75,14 +76,11 @@ async function run() {
         app.post('/jwt', async (req, res) => {
 
             const userData = req.body;
-
-            const token = jwt.sign(userData, process.env.JWT_SECRET, { expiresIn: '1hr' });
-
-
+            const token = jwt.sign(userData, process.env.JWT_SECRET, { expiresIn: '6hr' });
             res.cookie('token', token, {
                 httpOnly: true,
                 secure: true,
-
+                sameSite: 'None'
             })
             res.send({ success: true })
         })
@@ -124,17 +122,7 @@ async function run() {
             res.send(result);
         })
 
-
-
-
-
-
-
-
-
         //  application api
-
-
         app.get('/applications', verifyToken, emailVerification, async (req, res) => {
             const email = req.query.email;
 
@@ -191,8 +179,8 @@ async function run() {
 
 
         // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
-        console.log("Pinged your deployment. You successfully connected to MongoDB!");
+        // await client.db("admin").command({ ping: 1 });
+        // console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
         // await client.close();
