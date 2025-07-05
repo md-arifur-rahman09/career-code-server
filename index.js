@@ -1,3 +1,5 @@
+require("dotenv").config()
+
 const express = require('express');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require("cors");
@@ -9,9 +11,14 @@ const port = process.env.PORT || 5000;
 
 // middleware
 app.use(cors({
-    origin: ['http://localhost:5173'],
+    origin: [
+        'http://localhost:5173',
+        'https://career-code-client-14ed8.web.app',
+        'https://career-code-client-14ed8.firebaseapp.com'
+    ],
     credentials: true
 }));
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -41,7 +48,7 @@ const emailVerification = (req, res, next) => {
 
 
 
-require("dotenv").config()
+
 
 
 
@@ -72,10 +79,12 @@ async function run() {
         // jwt api
         app.post('/jwt', async (req, res) => {
             const userData = req.body;
-            const token = jwt.sign(userData, process.env.JWT_SECRET, { expiresIn: "1hr" });
+            const token = jwt.sign(userData, process.env.JWT_SECRET, { expiresIn: '1y' });
+
             res.cookie('token', token, {
                 httpOnly: true,
-                secure: false
+                secure: true,
+                sameSite: 'None'
             })
             res.send({ success: true })
         })
@@ -89,10 +98,10 @@ async function run() {
             res.send(result)
         })
 
-        app.get("/jobs", verifyToken,emailVerification, async (req, res) => {
+        app.get("/jobs", verifyToken, emailVerification, async (req, res) => {
 
             const email = req.query.email;
-           const query= { hr_email : email}
+            const query = { hr_email: email }
             const result = await jobsCollection.find(query).toArray();
             res.send(result)
         })
@@ -182,8 +191,8 @@ async function run() {
 
 
         // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
-        console.log("Pinged your deployment. You successfully connected to MongoDB!");
+        // await client.db("admin").command({ ping: 1 });
+        // console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
         // await client.close();
